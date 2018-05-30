@@ -1,4 +1,4 @@
-package com.example.ankie.drysister;
+package com.example.ankie.drysister.network;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,7 +24,7 @@ import java.net.URL;
  * @包名 com.example.ankie.drysister
  * @创建日期 2018/5/4
 /**********************************************************************/
-
+@Deprecated
 public class PictureLoader {
 
     private static final String TAG = "PictureLoader";

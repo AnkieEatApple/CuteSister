@@ -1,55 +1,64 @@
 package com.example.ankie.drysister;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.example.ankie.drysister.common.Constans;
+import com.example.ankie.drysister.service.MCenterDownloaderService;
+import com.example.ankie.drysister.sister.Sister;
+import com.example.ankie.drysister.sister.SisterApi;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
-    private Button showBtn;
-
-    private Button refreshBtn;
-
+    /**
+     * TAG
+     */
+    private static final String TAG = "MainActivity";
+    /**
+     * 图片显示
+     */
     private ImageView showImg;
-
-
-    private ArrayList<Sister> data;
-
-//    private ArrayList<String> urls;
-
+    /**
+     * 当前显示的
+     */
     private int curPos = 0;     // 当前显示的是哪一张
-
+    /**
+     * 那一页开始
+     */
     private int page = 1;       // 当前页数
-    private PictureLoader loader;
+    /**
+     * 获取sisterList
+     */
     private SisterApi sisterApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sisterApi = new SisterApi();
-        loader = new PictureLoader();
-        initData();
         initUI();
-    }
-
-    private void initData() {
-        data = new ArrayList<>();
-        new SisterTask(page).execute();
+        setup();
     }
 
     private void initUI() {
-        showBtn = (Button) findViewById(R.id.btn_show);
-        refreshBtn = (Button) findViewById(R.id.btn_refresh);
-        showImg = (ImageView) findViewById(R.id.img_show);
+        Button showBtn = findViewById(R.id.btn_show);
+        Button refreshBtn = findViewById(R.id.btn_refresh);
+        showImg = findViewById(R.id.img_show);
 
         showBtn.setOnClickListener(this);
         refreshBtn.setOnClickListener(this);
+    }
+
+    private void setup () {
+        sisterApi = new SisterApi();
+        MCenterDownloaderService.initDownloaderService(this);
+        MCenterDownloaderService.getInstance().init();
+        sisterApi.fetchSister(Constans.Param.NUMBER, page);
     }
 
     @Override
@@ -59,35 +68,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (curPos > 9) {
                     curPos = 0;
                 }
-                loader.load(showImg, data.get(curPos).getUrl());
+                ArrayList<Sister> mSisList = sisterApi.getSisterList();
+                if (mSisList == null) {
+                    Log.e(TAG, "onClick: " + "(data == null)" );
+                    return ;
+                }
+                String url = mSisList.get(curPos).getUrl();
+                if (url == null) {
+                    Log.e(TAG, "onClick: " + "(url == null)" );
+                    return;
+                }
+                ImageLoader.getInstance().displayImage(url, null, showImg);
                 curPos++;
                 break;
             case R.id.btn_refresh:
                 page++;
-                new SisterTask(page).execute();
+                sisterApi.fetchSister(Constans.Param.NUMBER, page);
                 curPos = 0;
                 break;
-        }
-    }
-
-    private class SisterTask extends AsyncTask<Void, Void, ArrayList<Sister>> {
-
-        private int page;
-
-        public SisterTask(int page) {
-            this.page = page;
-        }
-
-        @Override
-        protected ArrayList<Sister> doInBackground(Void... voids) {
-            return sisterApi.fetchSister(10, page);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Sister> sisters) {
-            super.onPostExecute(sisters);
-            data.clear();
-            data.addAll(sisters);
         }
     }
 }

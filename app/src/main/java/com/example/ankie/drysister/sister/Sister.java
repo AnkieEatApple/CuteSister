@@ -1,4 +1,6 @@
-package com.example.ankie.drysister;
+package com.example.ankie.drysister.sister;
+
+import com.google.gson.annotations.SerializedName;
 
 /**********************************************************************
  * 妹子业务Bean
@@ -11,23 +13,36 @@ package com.example.ankie.drysister;
 
 public class Sister {
 
+    @SerializedName("_id")
     private String _id;
 
+    @SerializedName("createdAt")
     private String createAt;
 
+    @SerializedName("desc")
     private String desc;
 
+    @SerializedName("publishedAt")
     private String publishedAt;
 
+    @SerializedName("source")
     private String source;
 
+    @SerializedName("type")
     private String type;
 
+    @SerializedName("url")
     private String url;
 
+    @SerializedName("used")
     private boolean used;
 
+    @SerializedName("who")
     private String who;
+
+    private int downloadCut;
+
+    private int state;
 
     public void set_id(String _id) {
         this._id = _id;
@@ -99,5 +114,21 @@ public class Sister {
 
     public String getUrl() {
         return url;
+    }
+
+    public int getDownloadCut() {
+        return downloadCut;
+    }
+
+    public void setDownloadCut(int downloadCut) {
+        this.downloadCut = downloadCut;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }
